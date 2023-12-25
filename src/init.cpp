@@ -7,18 +7,20 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
+#include "Asset2d.hpp"
+
 // Heap = pointeur => plus lent mais plus grande quantité
 // Stack = non pointeur => plus rapide moins de place
 class Asset
 {
 public:
   Asset() {}
-  Asset(int x, int y, int w, int h, const char *ptrFilepath1, const char *ptrFilepath2, SDL_Renderer *ptrRenderer) : posx(x), posy(y), dimw(w), dimh(h)
+  Asset(int x, int y, int w, int h, const char *ptrFilepath1, const char *ptrFilepath2, SDL_Renderer *renderer) : posx(x), posy(y), dimw(w), dimh(h)
   {
     SDL_Surface *img = IMG_Load(ptrFilepath1);
     SDL_Surface *img2 = IMG_Load(ptrFilepath2);
-    textures[0] = SDL_CreateTextureFromSurface(ptrRenderer, img);
-    textures[1] = SDL_CreateTextureFromSurface(ptrRenderer, img2);
+    textures[0] = SDL_CreateTextureFromSurface(renderer, img);
+    textures[1] = SDL_CreateTextureFromSurface(renderer, img2);
     SDL_FreeSurface(img);
     SDL_FreeSurface(img2);
     int *ptrPosx = &posx;
@@ -91,10 +93,10 @@ int main(int argc, char *argv[])
   }
 
   // -1 means SDL chooses automaticaly the graphical driver
-  SDL_Renderer *ptrRenderer = SDL_CreateRenderer(ptrWindow, -1, SDL_RENDERER_SOFTWARE);
-  // SDL_Renderer *ptrRenderer = SDL_CreateRenderer(ptrWindow, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
+  SDL_Renderer *renderer = SDL_CreateRenderer(ptrWindow, -1, SDL_RENDERER_SOFTWARE);
+  // SDL_Renderer *renderer = SDL_CreateRenderer(ptrWindow, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
 
-  if (ptrRenderer == nullptr)
+  if (renderer == nullptr)
   {
     std::cout << "Could not initialize SDL renderer\n"
               << SDL_GetError() << std::endl;
@@ -113,14 +115,14 @@ int main(int argc, char *argv[])
     std::cout << "Could not initialize SDL window surface\n"
               << SDL_GetError() << std::endl;
     SDL_DestroyWindow(ptrWindow);
-    SDL_DestroyRenderer(ptrRenderer);
+    SDL_DestroyRenderer(renderer);
     SDL_Quit();
     return EXIT_FAILURE;
   }
 
   // Asset *player = new Asset(0, 0, 200, 300, "media/sprite.png");
   // ptr unique au scope
-  std::unique_ptr<Asset> player(new Asset(50, 50, 250, 10, "media/player_sprite_1.png", "media/player_sprite_2.png", ptrRenderer));
+  std::unique_ptr<Asset> player(new Asset(50, 50, 250, 10, "media/player_sprite_1.png", "media/player_sprite_2.png", renderer));
 
   // ptr partagable
   // std::shared_ptr<Asset> playerSharedPtr(player.get()->get()); si on veut accepter a un geteur d'un poiteur
@@ -147,6 +149,9 @@ int main(int argc, char *argv[])
   std::time_t t = std::time(nullptr);
   std::time_t t2 = std::time(nullptr);
 
+  std::unique_ptr<Asset2d> test(new Asset2d(0, 0, 20, 20, "media/player_sprite_1.png", renderer));
+
+
   while (running)
   {
     if (t2 - t >= 1)
@@ -156,8 +161,8 @@ int main(int argc, char *argv[])
       frames = 0;
     }
 
-    SDL_SetRenderDrawColor(ptrRenderer, 255, 255, 255, 255);
-    SDL_RenderClear(ptrRenderer);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
 
     // Uint32 black = SDL_MapRGB(ptrWindowSurface->format, 0, 0, 0);
     // SDL_FillRect(ptrWindowSurface, NULL, black);
@@ -171,27 +176,27 @@ int main(int argc, char *argv[])
       switch (userEvent.key.keysym.sym)
       {
       case SDLK_UP:
-        player->assetRect.y -= 10;
+        test->getAssetGameObj()->y  -= 10;
         std::cout << "Player posy: " << player->posy << std::endl;
-        std::cout << "PlayerRect y: " << player->assetRect.y << std::endl;
+        std::cout << "PlayerRect y: " << test->getAssetGameObj()->y << std::endl;
         break;
 
       case SDLK_DOWN:
-        player->assetRect.y += 10;
+        test->getAssetGameObj()->y += 10;
         std::cout << "Player posy: " << player->posy << std::endl;
-        std::cout << "PlayerRect y: " << player->assetRect.y << std::endl;
+        std::cout << "PlayerRect y: " << test->getAssetGameObj()->y << std::endl;
         break;
 
       case SDLK_RIGHT:
-        player->assetRect.x += 10;
+        test->getAssetGameObj()->x += 10;
         std::cout << "Player posx: " << player->posx << std::endl;
-        std::cout << "PlayerRect x: " << player->assetRect.x << std::endl;
+        std::cout << "PlayerRect x: " << test->getAssetGameObj()->x << std::endl;
         break;
 
       case SDLK_LEFT:
-        player->assetRect.x -= 10;
+        test->getAssetGameObj()->x -= 10;
         std::cout << "Player posx: " << player->posx << std::endl;
-        std::cout << "PlayerRect x: " << player->assetRect.x << std::endl;
+        std::cout << "PlayerRect x: " << test->getAssetGameObj()->x << std::endl;
         break;
       
       case SDLK_SPACE:
@@ -223,15 +228,16 @@ int main(int argc, char *argv[])
       break;
     }
 
-    SDL_RenderCopy(ptrRenderer, player->currentTexture, NULL, &player->assetRect);
-    SDL_RenderPresent(ptrRenderer);
+    SDL_RenderCopy(renderer, player->currentTexture, NULL, &player->assetRect);
+    SDL_RenderCopy(renderer, test->getCurrentTexture(), NULL, test->getAssetGameObj());
+    SDL_RenderPresent(renderer);
     
     frames += 1;
     t2 = std::time(nullptr);
   }
 
   SDL_DestroyWindow(ptrWindow);
-  SDL_DestroyRenderer(ptrRenderer);
+  SDL_DestroyRenderer(renderer);
   SDL_Quit();
 
   return EXIT_SUCCESS;
