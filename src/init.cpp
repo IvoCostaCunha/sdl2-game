@@ -2,12 +2,14 @@
 #include <memory>
 #include <ctime>
 #include <unistd.h>
+#include <map>
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
 #include "Asset2d.hpp"
+#include "Core.hpp"
 
 // Heap = pointeur => plus lent mais plus grande quantité
 // Stack = non pointeur => plus rapide moins de place
@@ -53,10 +55,24 @@ public:
     currentTexture == textures[0] ? currentTexture = textures[1] : currentTexture = textures[0];
   }
 
-  void jump(){
+  void jump()
+  {
     // TODO with jump sprite
   }
 };
+
+void renderFont(const char *text, TTF_Font *font, SDL_Color fontColor, SDL_Renderer *renderer)
+{
+  SDL_Surface *fontSurface = TTF_RenderUTF8_Blended(font, text, fontColor);
+  SDL_Texture *fontTexture = SDL_CreateTextureFromSurface(renderer, fontSurface);
+
+  SDL_Rect fontRect{0, 0, fontSurface->w, fontSurface->h};
+  SDL_QueryTexture(fontTexture, NULL, NULL, &fontRect.w, &fontRect.h);
+
+  SDL_FreeSurface(fontSurface);
+
+  SDL_RenderCopy(renderer, fontTexture, NULL, &fontRect);
+}
 
 int main(int argc, char *argv[])
 {
@@ -75,6 +91,7 @@ int main(int argc, char *argv[])
 
   int r = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
   IMG_Init(IMG_INIT_PNG);
+  TTF_Init();
 
   if (r < 0)
   {
@@ -82,9 +99,9 @@ int main(int argc, char *argv[])
     return EXIT_FAILURE;
   }
 
-  SDL_Window *ptrWindow = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
+  SDL_Window *window = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
 
-  if (ptrWindow == nullptr)
+  if (window == nullptr)
   {
     std::cout << "Could not initialize SDL window\n"
               << SDL_GetError() << std::endl;
@@ -93,14 +110,14 @@ int main(int argc, char *argv[])
   }
 
   // -1 means SDL chooses automaticaly the graphical driver
-  SDL_Renderer *renderer = SDL_CreateRenderer(ptrWindow, -1, SDL_RENDERER_SOFTWARE);
+  SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
   // SDL_Renderer *renderer = SDL_CreateRenderer(ptrWindow, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
 
   if (renderer == nullptr)
   {
     std::cout << "Could not initialize SDL renderer\n"
               << SDL_GetError() << std::endl;
-    SDL_DestroyWindow(ptrWindow);
+    SDL_DestroyWindow(window);
     SDL_Quit();
     return EXIT_FAILURE;
   }
@@ -108,17 +125,45 @@ int main(int argc, char *argv[])
   // scanf("%s", a);
   // printf("Hello world\n");
 
-  SDL_Surface *ptrWindowSurface = SDL_GetWindowSurface(ptrWindow);
+  SDL_Surface *windowSurface = SDL_GetWindowSurface(window);
 
-  if (ptrWindowSurface == nullptr)
+  if (windowSurface == nullptr)
   {
     std::cout << "Could not initialize SDL window surface\n"
               << SDL_GetError() << std::endl;
-    SDL_DestroyWindow(ptrWindow);
+    SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
     return EXIT_FAILURE;
   }
+
+  TTF_Init();
+  // TODO: Should load all fonts at program start
+  // each file in ttf/ should be loaded
+
+  TTF_Font *robotoMediumFont = TTF_OpenFont("ttf/Roboto-Regular.ttf", 20);
+
+  if (robotoMediumFont == nullptr)
+  {
+    std::cout << "Could not initialize font\n"
+              << SDL_GetError() << std::endl;
+    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
+    SDL_Quit();
+    return EXIT_FAILURE;
+  }
+
+  const char *text = "test";
+  SDL_Color fontColor = {20, 20, 20, 255};
+
+  // SDL_Surface *fontSurface = TTF_RenderUTF8_Blended(robotoMediumFont, text, fontColor);
+  // SDL_Texture *fontTexture = SDL_CreateTextureFromSurface(renderer, fontSurface);
+
+  // SDL_Rect fontRect{0, 0, fontSurface->w, fontSurface->h};
+
+  // SDL_QueryTexture(fontTexture, NULL, NULL, &fontRect.w, &fontRect.h);
+
+  // SDL_FreeSurface(fontSurface);
 
   // Asset *player = new Asset(0, 0, 200, 300, "media/sprite.png");
   // ptr unique au scope
@@ -129,7 +174,7 @@ int main(int argc, char *argv[])
   // std::shared_ptr<Asset> playerSharedPtr(player.get());
 
   // SDL_Rect playerRect = {player->posx, player->posy, player->diml, player->dimh};
-  // SDL_BlitSurface(player->texture[0], NULL, ptrWindowSurface, &playerRect);
+  // SDL_BlitSurface(player->texture[0], NULL, windowSurface, &playerRect);
 
   // SDL_Point point{300, 300};
 
@@ -146,26 +191,27 @@ int main(int argc, char *argv[])
   SDL_Event userEvent;
 
   int frames = 0;
+  const char *lastFPSValue = "0";
   std::time_t t = std::time(nullptr);
   std::time_t t2 = std::time(nullptr);
 
   std::unique_ptr<Asset2d> test(new Asset2d(0, 0, 20, 20, "media/player_sprite_1.png", renderer));
-
 
   while (running)
   {
     if (t2 - t >= 1)
     {
       t = std::time(nullptr);
-      std::cout << "FPS : " << frames << std::endl;
+      // std::cout << "FPS : " << std::to_string(frames) << std::endl;
+      lastFPSValue = std::to_string(frames).c_str();
       frames = 0;
     }
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
-    // Uint32 black = SDL_MapRGB(ptrWindowSurface->format, 0, 0, 0);
-    // SDL_FillRect(ptrWindowSurface, NULL, black);
+    // Uint32 black = SDL_MapRGB(windowSurface->format, 0, 0, 0);
+    // SDL_FillRect(windowSurface, NULL, black);
 
     SDL_PollEvent(&userEvent);
     switch (userEvent.type)
@@ -176,7 +222,7 @@ int main(int argc, char *argv[])
       switch (userEvent.key.keysym.sym)
       {
       case SDLK_UP:
-        test->getAssetGameObj()->y  -= 10;
+        test->getAssetGameObj()->y -= 10;
         std::cout << "Player posy: " << player->posy << std::endl;
         std::cout << "PlayerRect y: " << test->getAssetGameObj()->y << std::endl;
         break;
@@ -198,9 +244,8 @@ int main(int argc, char *argv[])
         std::cout << "Player posx: " << player->posx << std::endl;
         std::cout << "PlayerRect x: " << test->getAssetGameObj()->x << std::endl;
         break;
-      
-      case SDLK_SPACE:
 
+      case SDLK_SPACE:
 
       default:
         break;
@@ -215,9 +260,9 @@ int main(int argc, char *argv[])
         break;
 
       case SDL_WINDOWEVENT_RESIZED:
-        ptrWindowSurface = SDL_GetWindowSurface(ptrWindow);
+        windowSurface = SDL_GetWindowSurface(window);
         // std::cout << playerRect.w << ' ' << playerRect.h << std::endl;
-        std::cout << ptrWindowSurface->h << ' ' << ptrWindowSurface->w << std::endl;
+        std::cout << windowSurface->h << ' ' << windowSurface->w << std::endl;
         break;
 
       default:
@@ -230,13 +275,16 @@ int main(int argc, char *argv[])
 
     SDL_RenderCopy(renderer, player->currentTexture, NULL, &player->assetRect);
     SDL_RenderCopy(renderer, test->getCurrentTexture(), NULL, test->getAssetGameObj());
+    renderFont(lastFPSValue, robotoMediumFont, fontColor, renderer);
     SDL_RenderPresent(renderer);
-    
+
     frames += 1;
     t2 = std::time(nullptr);
   }
 
-  SDL_DestroyWindow(ptrWindow);
+  IMG_Quit();
+  TTF_Quit();
+  SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);
   SDL_Quit();
 

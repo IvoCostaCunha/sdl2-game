@@ -25,7 +25,7 @@ Asset2d::~Asset2d()
   for (auto &&item : assetTextures)
   {
     // std::cout << '1' << item.first << ' ' << item.second << std::endl;
-    // delete &item.first; // FIXME: item.first isn't allocated, where is the char* then ? 
+    // delete &item.first; // FIXME: item.first isn't allocated, where is the char* then ?
     SDL_DestroyTexture(item.second);
   }
 }
