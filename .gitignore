@@ -1,7 +1,6 @@
-bin
-include
-lib
+bin/game_debug
 obj
+include
 share
 .vscode
 .DS_Store
