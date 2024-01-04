@@ -6,43 +6,65 @@
 
 #include <iostream>
 
-Core::Core()
+Core::Core(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFlags)
 {
-    initiate();
-}
-
-Core::Core(std::list<Asset2d> asset2dToLoad, std::list<AssetLabel> assetLabelToLoad)
-{
-    int INIT = initiate();
+    int INIT = initiate(initFlags, windowFlags, rendererFlags);
     if (INIT < 0)
     {
-        std::cout << "An error occured during initiation()\n"
+        std::cout << "An error occured during Core::initiation()\n"
                   << SDL_GetError() << std::endl;
+        throw std::runtime_error("Failed to construct Core object.");
     }
+}
 
-    for (std::list<Asset2d>::iterator it = asset2dToLoad.begin(); it != asset2dToLoad.end(); ++it)
+void Core::run()
+{
+    bool running = true;
+    SDL_Event userEvent;
+
+    while (running)
     {
-        loadedAsset2d.push_back(*it);
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+
+        /**
+         * SDL_PoolEvent() is a necessity to show the window on MacOS & Windows
+         * TODO: Inputs should be separated later
+         */
+        SDL_PollEvent(&userEvent);
+        switch (userEvent.type)
+        {
+        case SDL_KEYDOWN:
+            std::cout << "KeyboardEvent : " << userEvent.key.keysym.sym << " (" << userEvent.key.timestamp << ')' << std::endl;
+        case SDL_WINDOWEVENT:
+            // std::cout << "WindowEvent : " << userEvent.window.event  << " (" << userEvent.window.timestamp  << ')' << std::endl;
+            switch (userEvent.window.event)
+            {
+            case SDL_WINDOWEVENT_CLOSE:
+                running = false;
+                break;
+
+            case SDL_WINDOWEVENT_RESIZED:
+                windowSurface = SDL_GetWindowSurface(window);
+                std::cout << windowSurface->h << ' ' << windowSurface->w << std::endl;
+                break;
+
+            default:
+                break;
+            }
+
+        default:
+            break;
+        }
+
+        SDL_RenderPresent(renderer);
     }
-    for (std::list<AssetLabel>::iterator it = assetLabelToLoad.begin(); it != assetLabelToLoad.end(); ++it)
-    {
-        loadedAssetText.push_back(*it);
-    }
 }
 
-void Core::addLoadedAsset2d(Asset2d newAsset)
+int Core::initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFlags)
 {
-    loadedAsset2d.push_back(newAsset);
-}
-
-void Core::addLoadedAssetLabel(AssetLabel newAsset)
-{
-    loadedAssetText.push_back(newAsset);
-}
-
-int Core::initiate()
-{
-    int SDL_INIT = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
+    int SDL_INIT = SDL_Init(initFlags);
     IMG_Init(IMG_INIT_PNG);
     int SDL_TTF_INIT = TTF_Init();
 
@@ -53,22 +75,20 @@ int Core::initiate()
         return -1;
     }
 
-    window = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
+    window = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, windowFlags);
 
     if (window == nullptr)
     {
-        std::cout << "Could not initialize SDL window\n"
-                  << SDL_GetError() << std::endl;
+        std::cout << "Could not initialize SDL window" << std::endl;
         return -1;
     }
 
     // -1 means SDL chooses automaticaly the graphical driver
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    renderer = SDL_CreateRenderer(window, -1, rendererFlags);
 
     if (renderer == nullptr)
     {
-        std::cout << "Could not initialize SDL renderer\n"
-                  << SDL_GetError() << std::endl;
+        std::cout << "Could not initialize SDL renderer" << std::endl;
         return -1;
     }
 
@@ -76,8 +96,7 @@ int Core::initiate()
 
     if (windowSurface == nullptr)
     {
-        std::cout << "Could not initialize SDL window surface\n"
-                  << SDL_GetError() << std::endl;
+        std::cout << "Could not initialize SDL window surface" << std::endl;
         return -1;
     }
 
@@ -86,8 +105,15 @@ int Core::initiate()
 
 Core::~Core()
 {
-    SDL_DestroyWindow(window);
+    for (TTF_Font *p : v_font)
+    {
+        TTF_CloseFont(p);
+    }
+    v_font.clear();
+
     SDL_DestroyRenderer(renderer);
     SDL_FreeSurface(windowSurface);
+    SDL_DestroyWindow(window);
+
     SDL_Quit();
 }

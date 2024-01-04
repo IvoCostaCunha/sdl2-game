@@ -1,7 +1,7 @@
 RELEASE_TIME := $(shell date +%Y%m%d-%Hh%M)
 CC := g++ -m64 -std=c++17
 SRC_DIR := src
-OBJ_DIR := obj
+OBJ_DIR := bin
 BIN_DIR := bin
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 

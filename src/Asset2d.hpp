@@ -1,6 +1,4 @@
-#ifndef ASSET2D_HPP
-#define ASSET2D_HPP
-// #pragma once is less supported by compilers afaik
+#pragma once 
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_audio.h"
@@ -19,7 +17,7 @@ public:
    * @param *pngFilePath a pointer to the png containing all sprites for this asset
    * @param *renderer the associated SDL_Renderer
    */
-  Asset2d(int x, int y, int w, int l, const char *ptrPngPathFile, SDL_Renderer *ptrRenderer);
+  Asset2d(int32_t x, int32_t y, int32_t w, int32_t h, const char *ptrPngPathFile, SDL_Renderer *ptrRenderer);
 
   /**
    * Constructor used to copy this object
@@ -41,10 +39,10 @@ public:
    */
   SDL_Texture *getCurrentTexture();
 
-  int posx;
-  int posy;
-  int dimw;
-  int dimh;
+  int32_t posx;
+  int32_t posy;
+  int32_t dimw;
+  int32_t dimh;
 
 private:
   std::unordered_map<const char *, SDL_Texture *> assetTextures;
@@ -65,5 +63,3 @@ private:
    */
   void loadAssetTextures(const char *pngFilePath, SDL_Renderer *renderer);
 };
-
-#endif

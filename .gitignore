@@ -1,6 +1,6 @@
 bin/game_debug
-obj
-include
-share
+bin/game
+bin/*.o
+
 .vscode
 .DS_Store

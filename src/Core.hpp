@@ -1,11 +1,11 @@
-#ifndef CORE_HPP
-#define CORE_HPP
+#pragma once
 
 #include <list>
 #include <vector>
+#include <string>
 
 #include "Asset2d.hpp"
-#include "AssetLabel.hpp"
+#include "TextAsset.hpp"
 #include "Scene.hpp"
 
 /**
@@ -15,29 +15,21 @@ class Core
 {
 public:
     Core();
-    Core(std::list<Asset2d> asset2dToLoad, std::list<AssetLabel> assetLabelToLoad);
+    Core(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFlags);
 
     ~Core();
 
-    void addLoadedAsset2d(Asset2d newAsset);
-    void addLoadedAssetLabel(AssetLabel newAsset);
-    void addLoadedFont(TTF_Font newFont);
-
-    void deleteAsset2d(Asset2d asset);
-    void deleteAssetLabel(AssetLabel asset);
-    void deleteFont(TTF_Font font);
+    void addFont(std::string pathToFont);
+    void deleteFont(std::string fontName);
+    void run();
 
 private:
-    std::vector<Scene> scenes;
-    std::list<Asset2d> loadedAsset2d;
-    std::list<AssetLabel> loadedAssetText;
-    //std::list<TTF_Font> loadedFont;
+    std::vector<Scene> v_scene;
+    std::vector<TTF_Font *> v_font;
 
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Surface *windowSurface;
 
-    int initiate();
+    int initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFlags);
 };
-
-#endif
