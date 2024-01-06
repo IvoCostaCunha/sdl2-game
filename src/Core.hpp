@@ -1,6 +1,6 @@
 #pragma once
 
-#include <list>
+#include <unordered_map>
 #include <vector>
 #include <string>
 
@@ -21,15 +21,23 @@ public:
 
     void addFont(std::string pathToFont);
     void deleteFont(std::string fontName);
+
+    void setScene(std::string name);
+    void createScene(std::string sceneName, std::vector<Asset2d> v_asset2d_p, std::vector<TextAsset> v_textAsset_p);
+    
     void run();
 
 private:
     std::vector<Scene> v_scene;
-    std::vector<TTF_Font *> v_font;
+    std::unordered_map<std::string, TTF_Font*> m_font;
+    std::unique_ptr<Scene> activeScene;
 
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Surface *windowSurface;
 
-    int initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFlags);
+    /**
+     * Return 0 if success, 1 if failure
+    */
+    int16_t initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFlags);
 };

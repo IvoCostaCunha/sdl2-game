@@ -17,6 +17,19 @@ Core::Core(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFlags)
     }
 }
 
+void Core::createScene(std::string sceneName, std::vector<Asset2d> v_asset2d_p, std::vector<TextAsset> v_textAsset_p) {
+    Scene newScene = Scene(sceneName, v_asset2d_p, v_textAsset_p);
+    v_scene.push_back(newScene);
+}
+
+void Core::setScene(std::string sceneName) {
+    for(Scene s: v_scene) {
+        if(s.getName() == sceneName) {
+            // load scene assets here
+        }
+    }
+}
+
 void Core::run()
 {
     bool running = true;
@@ -62,7 +75,7 @@ void Core::run()
     }
 }
 
-int Core::initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFlags)
+int16_t Core::initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFlags)
 {
     int SDL_INIT = SDL_Init(initFlags);
     IMG_Init(IMG_INIT_PNG);
@@ -72,7 +85,7 @@ int Core::initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFl
     {
         std::cout << "Cannot SDL_Init() or TTF_Init() (%s)\n"
                   << SDL_GetError() << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
 
     window = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, windowFlags);
@@ -80,7 +93,7 @@ int Core::initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFl
     if (window == nullptr)
     {
         std::cout << "Could not initialize SDL window" << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
 
     // -1 means SDL chooses automaticaly the graphical driver
@@ -89,7 +102,7 @@ int Core::initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFl
     if (renderer == nullptr)
     {
         std::cout << "Could not initialize SDL renderer" << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
 
     windowSurface = SDL_GetWindowSurface(window);
@@ -97,19 +110,19 @@ int Core::initiate(uint32_t initFlags, uint32_t windowFlags, uint32_t rendererFl
     if (windowSurface == nullptr)
     {
         std::cout << "Could not initialize SDL window surface" << std::endl;
-        return -1;
+        return EXIT_FAILURE;
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 Core::~Core()
 {
-    for (TTF_Font *p : v_font)
-    {
-        TTF_CloseFont(p);
-    }
-    v_font.clear();
+    // for (TTF_Font *p : v_font)
+    // {
+    //     TTF_CloseFont(p);
+    // }
+    // v_font.clear();
 
     SDL_DestroyRenderer(renderer);
     SDL_FreeSurface(windowSurface);

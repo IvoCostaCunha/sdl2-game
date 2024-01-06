@@ -6,16 +6,18 @@
 
 Asset2d::Asset2d() {}
 
-Asset2d::Asset2d(int x, int y, int w, int h, const char *pngFilePath, SDL_Renderer *renderer) : posx(x), posy(y), dimw(w), dimh(h)
+Asset2d::Asset2d(std::string name): name(name) {}
+
+Asset2d::Asset2d(std::string name, int32_t x, int32_t y, int32_t w, int32_t h, const char *pngFilePath, SDL_Renderer *renderer) : name(name)
 {
   loadAssetTextures(pngFilePath, renderer);
-  assetGameObj = createGameObj();
-
-  auto p = std::make_pair(1, 3.14);
-  std::cout << '(' << std::get<0>(p) << ", " << std::get<1>(p) << ")\n";
+  assetGameObj = createGameObj(x, y, w, h);
 }
 
-Asset2d::Asset2d(const Asset2d &asset2d) : posx(asset2d.posx), posy(asset2d.posy), dimw(asset2d.dimw), dimh(asset2d.dimh) {}
+Asset2d::Asset2d(const Asset2d &asset2d){
+  // TODO
+  std::cout << asset2d.name << std::endl;
+}
 
 Asset2d::~Asset2d()
 {
@@ -40,12 +42,17 @@ SDL_Texture *Asset2d::getCurrentTexture()
   return currentTexture;
 }
 
-SDL_Rect Asset2d::createGameObj()
+std::string Asset2d::getName()
 {
-  assetGameObj.x = posx;
-  assetGameObj.y = posy;
-  assetGameObj.w = dimw;
-  assetGameObj.h = dimh;
+  return name;
+}
+
+SDL_Rect Asset2d::createGameObj(int32_t x,int32_t y, int32_t w, int32_t h)
+{
+  assetGameObj.x = x;
+  assetGameObj.y = y;
+  assetGameObj.w = w;
+  assetGameObj.h = h;
   SDL_QueryTexture(assetTextures["idle"], NULL, NULL, &assetGameObj.w, &assetGameObj.h);
   currentTexture = assetTextures["idle"];
   return assetGameObj;

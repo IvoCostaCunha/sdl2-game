@@ -1,9 +1,85 @@
 #include <iostream>
+#include "gtest/gtest.h"
 
 #include "Core.hpp"
 
 // Heap = pointeur => plus lent mais plus grande quantité
 // Stack = non pointeur => plus rapide moins de place
+// class Test
+// {
+// public:
+//     Test(int v) : value(v) {}
+//     int value;
+// };
+
+// int add(int a, int b)
+// {
+//     return a + b;
+// }
+
+// TEST(TestSuite, Test)
+// {
+//     EXPECT_EQ(add(1, 1), 2);
+// }
+
+int main(int argc, char *argv[])
+{
+
+#ifdef DEBUG
+    std::cout << "DEBUG MODE" << std::endl;
+    std::cout << "argc: " << argc << std::endl;
+    for (int x = 0; x < argc; x++)
+    {
+        std::cout << "argv: " << argv[x] << ' ';
+    }
+    std::cout << std::endl;
+#endif
+
+    // testing::InitGoogleTest(&argc, argv);
+    // int32_t testResult = RUN_ALL_TESTS();
+
+    // if(testResult < 0) {
+    //     std::cout << "Tests failed" << std::endl;
+    //     return EXIT_FAILURE;
+    // }
+
+    uint32_t initFlags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS;
+    uint32_t windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN;
+    uint32_t rendererFlags = SDL_RENDERER_SOFTWARE;
+
+    try
+    {
+        Core core = Core(initFlags, windowFlags, rendererFlags);
+        core.run();
+    }
+    catch (const std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    // Test a = Test(1);
+    // Test b = Test(2);
+    // Test c = Test(3);
+
+    // std::vector<Test> v{a, b, c};
+
+    // for (std::vector<Test>::iterator it = v.begin(); it != v.end(); ++it)
+    // {
+    //     if (it->value % 2 == 0)
+    //     {
+    //         v.erase(it);
+    //     }
+    // }
+
+    // for (auto e : v)
+    // {
+    //     std::cout << e.value << std::endl;
+    // }
+
+    return EXIT_SUCCESS;
+}
+
 // class Asset
 // {
 // public:
@@ -65,231 +141,197 @@
 //     SDL_RenderCopy(renderer, fontTexture, NULL, &fontRect);
 // }
 
-int main(int argc, char *argv[])
-{
+// SDL_Init(initFlags);
 
-#ifdef DEBUG
-    std::cout << "DEBUG MODE" << std::endl;
-    std::cout << "argc: " << argc << std::endl;
-    for (int x = 0; x < argc; x++)
-    {
-        std::cout << "argv: " << argv[x] << ' ';
-    }
-    std::cout << std::endl;
-#endif
+// SDL_Window *window = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, windowFlags);
 
-#ifdef RELEASE
-    // For a release
-#endif
+// // -1 means SDL chooses automaticaly the graphical driver
+// SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, rendererFlags);
+// // SDL_Renderer *renderer = SDL_CreateRenderer(ptrWindow, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
 
-    uint32_t initFlags = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS;
-    uint32_t windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN;
-    uint32_t rendererFlags = SDL_RENDERER_SOFTWARE;
+// SDL_Event e;
+// bool quit = false;
+// while (!quit)
+// {
+//     while (SDL_PollEvent(&e))
+//     {
+//         if (e.type == SDL_QUIT)
+//         {
+//             quit = true;
+//         }
+//         if (e.type == SDL_KEYDOWN)
+//         {
+//             quit = true;
+//         }
+//         if (e.type == SDL_MOUSEBUTTONDOWN)
+//         {
+//             quit = true;
+//         }
+//     }
+// }
 
-    try
-    {
-        Core core = Core(initFlags, windowFlags, rendererFlags);
-        core.run();
-    }
-    catch (const std::exception &e)
-    {
-        std::cout << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
+// SDL_DestroyRenderer(renderer);
+// SDL_DestroyWindow(window);
+// SDL_Quit();
 
-    return EXIT_SUCCESS;
+// char a[10];
+// scanf("%s", a);
+// printf("Hello world\n");
 
-    // SDL_Init(initFlags);
+// SDL_Surface *windowSurface = SDL_GetWindowSurface(window);
 
-    // SDL_Window *window = SDL_CreateWindow("Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, windowFlags);
+// if (windowSurface == nullptr)
+// {
+//     std::cout << "Could not initialize SDL window surface\n"
+//               << SDL_GetError() << std::endl;
+//     SDL_DestroyWindow(window);
+//     SDL_DestroyRenderer(renderer);
+//     SDL_Quit();
+//     return EXIT_FAILURE;
+// }
 
-    // // -1 means SDL chooses automaticaly the graphical driver
-    // SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, rendererFlags);
-    // // SDL_Renderer *renderer = SDL_CreateRenderer(ptrWindow, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
+// TTF_Init();
+// // TODO: Should load all fonts at program start
+// // each file in ttf/ should be loaded
 
-    // SDL_Event e;
-    // bool quit = false;
-    // while (!quit)
-    // {
-    //     while (SDL_PollEvent(&e))
-    //     {
-    //         if (e.type == SDL_QUIT)
-    //         {
-    //             quit = true;
-    //         }
-    //         if (e.type == SDL_KEYDOWN)
-    //         {
-    //             quit = true;
-    //         }
-    //         if (e.type == SDL_MOUSEBUTTONDOWN)
-    //         {
-    //             quit = true;
-    //         }
-    //     }
-    // }
+// TTF_Font *robotoMediumFont = TTF_OpenFont("ttf/Roboto-Regular.ttf", 20);
 
-    // SDL_DestroyRenderer(renderer);
-    // SDL_DestroyWindow(window);
-    // SDL_Quit();
+// if (robotoMediumFont == nullptr)
+// {
+//     std::cout << "Could not initialize font\n"
+//               << SDL_GetError() << std::endl;
+//     SDL_DestroyWindow(window);
+//     SDL_DestroyRenderer(renderer);
+//     SDL_Quit();
+//     return EXIT_FAILURE;
+// }
 
-    // char a[10];
-    // scanf("%s", a);
-    // printf("Hello world\n");
+// const char *text = "test";
+// SDL_Color fontColor = {20, 20, 20, 255};
 
-    // SDL_Surface *windowSurface = SDL_GetWindowSurface(window);
+// SDL_Surface *fontSurface = TTF_RenderUTF8_Blended(robotoMediumFont, text, fontColor);
+// SDL_Texture *fontTexture = SDL_CreateTextureFromSurface(renderer, fontSurface);
 
-    // if (windowSurface == nullptr)
-    // {
-    //     std::cout << "Could not initialize SDL window surface\n"
-    //               << SDL_GetError() << std::endl;
-    //     SDL_DestroyWindow(window);
-    //     SDL_DestroyRenderer(renderer);
-    //     SDL_Quit();
-    //     return EXIT_FAILURE;
-    // }
+// SDL_Rect fontRect{0, 0, fontSurface->w, fontSurface->h};
 
-    // TTF_Init();
-    // // TODO: Should load all fonts at program start
-    // // each file in ttf/ should be loaded
+// SDL_QueryTexture(fontTexture, NULL, NULL, &fontRect.w, &fontRect.h);
 
-    // TTF_Font *robotoMediumFont = TTF_OpenFont("ttf/Roboto-Regular.ttf", 20);
+// SDL_FreeSurface(fontSurface);
 
-    // if (robotoMediumFont == nullptr)
-    // {
-    //     std::cout << "Could not initialize font\n"
-    //               << SDL_GetError() << std::endl;
-    //     SDL_DestroyWindow(window);
-    //     SDL_DestroyRenderer(renderer);
-    //     SDL_Quit();
-    //     return EXIT_FAILURE;
-    // }
+// Asset *player = new Asset(0, 0, 200, 300, "media/sprite.png");
+// ptr unique au scope
+// std::unique_ptr<Asset> player(new Asset(50, 50, 250, 10, "media/player_sprite_1.png", "media/player_sprite_2.png", renderer));
 
-    // const char *text = "test";
-    // SDL_Color fontColor = {20, 20, 20, 255};
+// ptr partagable
+// std::shared_ptr<Asset> playerSharedPtr(player.get()->get()); si on veut accepter a un geteur d'un poiteur
+// std::shared_ptr<Asset> playerSharedPtr(player.get());
 
-    // SDL_Surface *fontSurface = TTF_RenderUTF8_Blended(robotoMediumFont, text, fontColor);
-    // SDL_Texture *fontTexture = SDL_CreateTextureFromSurface(renderer, fontSurface);
+// SDL_Rect playerRect = {player->posx, player->posy, player->diml, player->dimh};
+// SDL_BlitSurface(player->texture[0], NULL, windowSurface, &playerRect);
 
-    // SDL_Rect fontRect{0, 0, fontSurface->w, fontSurface->h};
+// SDL_Point point{300, 300};
 
-    // SDL_QueryTexture(fontTexture, NULL, NULL, &fontRect.w, &fontRect.h);
+// SDL_Rect playerRectangle;
+// playerRectangle.x = 50;
+// playerRectangle.y = 50;
+// SDL_QueryTexture(player->texture[0], NULL, NULL, &playerRectangle.w, &playerRectangle.h);
 
-    // SDL_FreeSurface(fontSurface);
+// std::time_t t = std::time(nullptr);
+// sleep(5);
+// std::time_t t2 = std::time(nullptr);
+// std::cout << "time " << t2-t << std::endl;
 
-    // Asset *player = new Asset(0, 0, 200, 300, "media/sprite.png");
-    // ptr unique au scope
-    // std::unique_ptr<Asset> player(new Asset(50, 50, 250, 10, "media/player_sprite_1.png", "media/player_sprite_2.png", renderer));
+// SDL_Event userEvent;
 
-    // ptr partagable
-    // std::shared_ptr<Asset> playerSharedPtr(player.get()->get()); si on veut accepter a un geteur d'un poiteur
-    // std::shared_ptr<Asset> playerSharedPtr(player.get());
+//   int frames = 0;
+//   const char *lastFPSValue = "0";
+//   std::time_t t = std::time(nullptr);
+//   std::time_t t2 = std::time(nullptr);
 
-    // SDL_Rect playerRect = {player->posx, player->posy, player->diml, player->dimh};
-    // SDL_BlitSurface(player->texture[0], NULL, windowSurface, &playerRect);
+// std::unique_ptr<Asset2d> test(new Asset2d(0, 0, 20, 20, "media/player_sprite_1.png", renderer));
 
-    // SDL_Point point{300, 300};
+// while (running)
+// {
+//     // if (t2 - t >= 1)
+//     // {
+//     //   t = std::time(nullptr);
+//     //   // std::cout << "FPS : " << std::to_string(frames) << std::endl;
+//     //   lastFPSValue = std::to_string(frames).c_str();
+//     //   frames = 0;
+//     // }
 
-    // SDL_Rect playerRectangle;
-    // playerRectangle.x = 50;
-    // playerRectangle.y = 50;
-    // SDL_QueryTexture(player->texture[0], NULL, NULL, &playerRectangle.w, &playerRectangle.h);
+//     // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+//     // SDL_RenderClear(renderer);
 
-    // std::time_t t = std::time(nullptr);
-    // sleep(5);
-    // std::time_t t2 = std::time(nullptr);
-    // std::cout << "time " << t2-t << std::endl;
+//     // SDL_PollEvent(&userEvent);
+//     // switch (userEvent.type)
+//     // {
+//     // case SDL_KEYDOWN:
+//     //   std::cout << "KeyboardEvent : " << userEvent.key.keysym.sym << " (" << userEvent.key.timestamp << ')' << std::endl;
+//     //   player->changeTexture();
+//     //   switch (userEvent.key.keysym.sym)
+//     //   {
+//     //   case SDLK_UP:
+//     //     test->getAssetGameObj()->y -= 10;
+//     //     std::cout << "Player posy: " << player->posy << std::endl;
+//     //     std::cout << "PlayerRect y: " << test->getAssetGameObj()->y << std::endl;
+//     //     break;
 
-    // SDL_Event userEvent;
+//     //   case SDLK_DOWN:
+//     //     test->getAssetGameObj()->y += 10;
+//     //     std::cout << "Player posy: " << player->posy << std::endl;
+//     //     std::cout << "PlayerRect y: " << test->getAssetGameObj()->y << std::endl;
+//     //     break;
 
-    //   int frames = 0;
-    //   const char *lastFPSValue = "0";
-    //   std::time_t t = std::time(nullptr);
-    //   std::time_t t2 = std::time(nullptr);
+//     //   case SDLK_RIGHT:
+//     //     test->getAssetGameObj()->x += 10;
+//     //     std::cout << "Player posx: " << player->posx << std::endl;
+//     //     std::cout << "PlayerRect x: " << test->getAssetGameObj()->x << std::endl;
+//     //     break;
 
-    // std::unique_ptr<Asset2d> test(new Asset2d(0, 0, 20, 20, "media/player_sprite_1.png", renderer));
+//     //   case SDLK_LEFT:
+//     //     test->getAssetGameObj()->x -= 10;
+//     //     std::cout << "Player posx: " << player->posx << std::endl;
+//     //     std::cout << "PlayerRect x: " << test->getAssetGameObj()->x << std::endl;
+//     //     break;
 
-    // while (running)
-    // {
-    //     // if (t2 - t >= 1)
-    //     // {
-    //     //   t = std::time(nullptr);
-    //     //   // std::cout << "FPS : " << std::to_string(frames) << std::endl;
-    //     //   lastFPSValue = std::to_string(frames).c_str();
-    //     //   frames = 0;
-    //     // }
+//     //   case SDLK_SPACE:
 
-    //     // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    //     // SDL_RenderClear(renderer);
+//     //   default:
+//     //     break;
+//     //   }
+//     //   break;
+//     // case SDL_WINDOWEVENT:
+//     //   // std::cout << "WindowEvent : " << userEvent.window.event  << " (" << userEvent.window.timestamp  << ')' << std::endl;
+//     //   switch (userEvent.window.event)
+//     //   {
+//     //   case SDL_WINDOWEVENT_CLOSE:
+//     //     running = false;
+//     //     break;
 
-    //     // SDL_PollEvent(&userEvent);
-    //     // switch (userEvent.type)
-    //     // {
-    //     // case SDL_KEYDOWN:
-    //     //   std::cout << "KeyboardEvent : " << userEvent.key.keysym.sym << " (" << userEvent.key.timestamp << ')' << std::endl;
-    //     //   player->changeTexture();
-    //     //   switch (userEvent.key.keysym.sym)
-    //     //   {
-    //     //   case SDLK_UP:
-    //     //     test->getAssetGameObj()->y -= 10;
-    //     //     std::cout << "Player posy: " << player->posy << std::endl;
-    //     //     std::cout << "PlayerRect y: " << test->getAssetGameObj()->y << std::endl;
-    //     //     break;
+//     //   case SDL_WINDOWEVENT_RESIZED:
+//     //     windowSurface = SDL_GetWindowSurface(window);
+//     //     // std::cout << playerRect.w << ' ' << playerRect.h << std::endl;
+//     //     std::cout << windowSurface->h << ' ' << windowSurface->w << std::endl;
+//     //     break;
 
-    //     //   case SDLK_DOWN:
-    //     //     test->getAssetGameObj()->y += 10;
-    //     //     std::cout << "Player posy: " << player->posy << std::endl;
-    //     //     std::cout << "PlayerRect y: " << test->getAssetGameObj()->y << std::endl;
-    //     //     break;
+//     //   default:
+//     //     break;
+//     //   }
 
-    //     //   case SDLK_RIGHT:
-    //     //     test->getAssetGameObj()->x += 10;
-    //     //     std::cout << "Player posx: " << player->posx << std::endl;
-    //     //     std::cout << "PlayerRect x: " << test->getAssetGameObj()->x << std::endl;
-    //     //     break;
+//     // default:
+//     //   break;
+//     // }
 
-    //     //   case SDLK_LEFT:
-    //     //     test->getAssetGameObj()->x -= 10;
-    //     //     std::cout << "Player posx: " << player->posx << std::endl;
-    //     //     std::cout << "PlayerRect x: " << test->getAssetGameObj()->x << std::endl;
-    //     //     break;
+//     // SDL_RenderCopy(renderer, player->currentTexture, NULL, &player->assetRect);
+//     // SDL_RenderCopy(renderer, test->getCurrentTexture(), NULL, test->getAssetGameObj());
+//     // renderFont(lastFPSValue, robotoMediumFont, fontColor, renderer);
+//     // SDL_RenderPresent(renderer);
 
-    //     //   case SDLK_SPACE:
+//     // frames += 1;
+//     // t2 = std::time(nullptr);
+// }
 
-    //     //   default:
-    //     //     break;
-    //     //   }
-    //     //   break;
-    //     // case SDL_WINDOWEVENT:
-    //     //   // std::cout << "WindowEvent : " << userEvent.window.event  << " (" << userEvent.window.timestamp  << ')' << std::endl;
-    //     //   switch (userEvent.window.event)
-    //     //   {
-    //     //   case SDL_WINDOWEVENT_CLOSE:
-    //     //     running = false;
-    //     //     break;
-
-    //     //   case SDL_WINDOWEVENT_RESIZED:
-    //     //     windowSurface = SDL_GetWindowSurface(window);
-    //     //     // std::cout << playerRect.w << ' ' << playerRect.h << std::endl;
-    //     //     std::cout << windowSurface->h << ' ' << windowSurface->w << std::endl;
-    //     //     break;
-
-    //     //   default:
-    //     //     break;
-    //     //   }
-
-    //     // default:
-    //     //   break;
-    //     // }
-
-    //     // SDL_RenderCopy(renderer, player->currentTexture, NULL, &player->assetRect);
-    //     // SDL_RenderCopy(renderer, test->getCurrentTexture(), NULL, test->getAssetGameObj());
-    //     // renderFont(lastFPSValue, robotoMediumFont, fontColor, renderer);
-    //     // SDL_RenderPresent(renderer);
-
-    //     // frames += 1;
-    //     // t2 = std::time(nullptr);
-    // }
-
-    // IMG_Quit();
-    // TTF_Quit();
-}
+// IMG_Quit();
+// TTF_Quit();
+// }
